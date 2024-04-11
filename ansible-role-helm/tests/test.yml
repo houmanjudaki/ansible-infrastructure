@@ -1,0 +1,34 @@
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - role: ansible-role-helm
+      name: my-deployment
+      chart: my-chart
+      values_file: |
+        Spark:
+          Path: /opt/spark
+
+        externalIP:
+          enabled: true
+          ip: {{ externalParams[1] }}
+
+        Master:
+          Name: master
+          Image: cloudpg/spark-py
+          ImageTag: dodas-2.4.3-bigdl
+          Replicas: 1
+          Component: spark-master
+          Cpu: 100m
+          Memory: 1024Mi
+          ServicePort: 7077
+          ContainerPort: 7077
+          # Set Master JVM memory. Default 1g
+          # DaemonMemory: 1g
+          ServiceType: ClusterIP
+          Jupyter:
+            NodePort: 30888
+      repos:
+      externalParams:
+      - 10.10.10.10
+      - 10.10.10.11
