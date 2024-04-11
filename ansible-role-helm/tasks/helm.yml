@@ -1,0 +1,46 @@
+---
+- name: Helm install repos
+  command: helm repo add {{ item.name }} {{ item.url }}
+  with_items: "{{ repos }}"
+
+- name: write values template
+  copy:
+    content: |
+      {{ values_file }}
+    dest: values_{{ name }}-template.yml
+    owner: root
+    group: root
+  delegate_to: localhost
+  when: ( values_file != "" ) and ( values_url == "" )
+
+- name: compile values
+  template:
+    src: values_{{ name }}-template.yml
+    dest: /tmp/values_{{ name }}.yml
+  when: ( values_file != "" ) and ( values_url == "" )
+
+- name: get values from url
+  get_url:
+      url: "{{ values_url }}"
+      dest: "/tmp/values_{{ name }}.yml"
+  when: ( values_url != "" ) and ( values_file == "" )
+
+- name: Remove deployment if already exists
+  command: "helm --kubeconfig {{ kubeconfig_path }} delete {{ name }}"
+  ignore_errors: yes
+
+- name: Helm3 install chart {{ chart }}
+  command: "helm --kubeconfig {{ kubeconfig_path }} install {{ name }} -f /tmp/values_{{ name }}.yml {{ chart }} {{ inline_options }}"
+  when: (( values_url != "" ) or ( values_file != "" )) and ( helm_version == "v3" )
+
+- name: Helm3 install chart {{ chart }}
+  command: "helm --kubeconfig {{ kubeconfig_path }} install {{ name }} {{ chart }} {{ inline_options }}"
+  when: (( values_url == "" ) and ( values_file == "" )) and ( helm_version == "v3" )
+
+- name: Helm2 install chart {{ chart }}
+  command: "helm --kubeconfig {{ kubeconfig_path }} install --wait --timeout {{ timeout }} --name {{ name }} -f /tmp/values_{{ name }}.yml {{ chart }} {{ inline_options }}"
+  when: (( values_url != "" ) or ( values_file != "" )) and ( helm_version == "v2" )
+
+- name: Helm2 install chart {{ chart }}
+  command: "helm --kubeconfig {{ kubeconfig_path }} install --wait --timeout {{ timeout }}s --name {{ name }} {{ chart }} {{ inline_options }}"
+  when: (( values_url == "" ) and ( values_file == "" )) and ( helm_version == "v2" )
