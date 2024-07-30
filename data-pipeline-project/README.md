@@ -7,7 +7,7 @@ This project sets up a data pipeline using Docker Compose and Ansible. It includ
 
 ## Directory Structure
 ```
-```
+
 ```
 data-pipeline-project/
 ├── ansible/
