@@ -1,1 +1,32 @@
+---
+- name: Install Nginx from RPM
+  yum:
+    name: nginx
+    state: present
+
+- name: Start Nginx service
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Copy Nginx config
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+
+- name: Copy local.html
+  copy:
+    src: local.html
+    dest: /usr/share/nginx/html/local.html
+
+- name: Copy htpasswd
+  copy:
+    src: htpasswd
+    dest: /etc/nginx/.htpasswd
+
+- name: Restart Nginx service
+  service:
+    name: nginx
+    state: restarted
 
