@@ -32,6 +32,7 @@ data-pipeline-project/
 ├── docker-compose.yml
 ├── README.md
 └── .env (optional for environment variables)
+
 ```
 
 ## Steps to Run the Project
