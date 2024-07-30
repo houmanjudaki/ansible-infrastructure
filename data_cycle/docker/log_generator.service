@@ -1,1 +1,9 @@
-log gen
+[Unit]
+Description=Log Generator Service
+
+[Service]
+ExecStart=/usr/bin/python3 /path/to/log_generator.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
