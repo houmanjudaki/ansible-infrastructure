@@ -1,1 +1,11 @@
+---
+- name: Copy rsyslog config
+  copy:
+    src: rsyslog.conf
+    dest: /etc/rsyslog.d/rsyslog.conf
+
+- name: Restart rsyslog service
+  service:
+    name: rsyslog
+    state: restarted
 
