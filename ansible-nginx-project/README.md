@@ -5,6 +5,7 @@ This project sets up Nginx with SSL using Let's Encrypt and Certbot. It includes
 
 ## Directory Structure
 ```
+```
 nginx-project/
 ├── ansible/
 │   ├── playbook.yml
@@ -76,8 +77,4 @@ nginx-project/
 
 
 
-(1) How To Secure Nginx with Let's Encrypt on Ubuntu 20.04. https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-20-04.
-(2) How To Secure Nginx with Let's Encrypt on Ubuntu. https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-22-04.
-(3) How To Secure Nginx with Let's Encrypt on Rocky Linux 9. https://bing.com/search?q=Nginx+SSL+configuration+with+Let%27s+Encrypt+and+Certbot.
-(4) Part 1: Easy TLS / SSL setup using Certbot and Let’s Encrypt - Serverwise. https://www.ssdnodes.com/blog/nginx-tls-setup-certbot-lets-encrypt/.
-(5) Install Let’s Encrypt SSL with Certbot on Nginx - AZDIGI Blog. https://azdigi.com/blog/en/linux-server-en/install-lets-encrypt-ssl-with-certbot-on-nginx/.
+
