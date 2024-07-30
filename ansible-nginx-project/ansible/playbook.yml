@@ -1,1 +1,8 @@
+---
+- name: Setup Nginx Project
+  hosts: all
+  become: yes
+
+  roles:
+    - nginx
 
