@@ -1,1 +1,11 @@
+---
+- name: Copy log generator script
+  copy:
+    src: log_generator.py
+    dest: /opt/log_generator/log_generator.py
+
+- name: Run Docker Compose
+  command: docker-compose up -d
+  args:
+    chdir: /opt/data-pipeline-project
 
