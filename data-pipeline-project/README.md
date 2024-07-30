@@ -7,6 +7,8 @@ This project sets up a data pipeline using Docker Compose and Ansible. It includ
 
 ## Directory Structure
 ```
+```
+```
 data-pipeline-project/
 ├── ansible/
 │   ├── playbook.yml
@@ -32,7 +34,6 @@ data-pipeline-project/
 ├── docker-compose.yml
 ├── README.md
 └── .env (optional for environment variables)
-
 ```
 
 ## Steps to Run the Project
