@@ -1,1 +1,9 @@
+---
+- name: Copy ILM setup script
+  copy:
+    src: setup_ilm.py
+    dest: /opt/ilm/setup_ilm.py
+
+- name: Run ILM setup script
+  command: python /opt/ilm/setup_ilm.py
 
