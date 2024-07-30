@@ -1,4 +1,4 @@
-```
+
 ```markdown
 # Data Pipeline Project
 
@@ -6,6 +6,8 @@
 This project sets up a data pipeline using Docker Compose and Ansible. It includes services for log generation, rsyslog, Kafka, Akhq, FTP, Elasticsearch, and Kibana. The project also includes automated setup of Index Lifecycle Management (ILM) and Kafka retention policies.
 
 ## Directory Structure
+```
+```
 ```
 
 ```
