@@ -1,8 +1,8 @@
 ---
-- name: Setup Nginx Project
+- name: Setup Nginx Project with SSL
   hosts: all
   become: yes
 
   roles:
     - nginx
-
+    - certbot
