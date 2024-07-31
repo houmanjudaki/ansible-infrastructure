@@ -1,9 +1,13 @@
+Here's the entire text converted to Markdown:
 
 ```markdown
+# Nginx Project with SSL
+
 ## Introduction
 This project sets up Nginx with SSL using Let's Encrypt and Certbot. It includes configurations for serving static content with Basic Authentication and redirecting to Google.
 
 ## Directory Structure
+
 ```
 ```
 nginx-project/
@@ -17,6 +21,11 @@ nginx-project/
 │   │   │   │   ├── nginx.conf
 │   │   │   │   ├── local.html
 │   │   │   │   └── htpasswd
+│   │   ├── certbot/
+│   │   │   ├── tasks/
+│   │   │   │   └── main.yml
+│   │   │   ├── templates/
+│   │   │   │   └── certbot_cron.j2
 ├── docker-compose.yml
 ├── nginx/
 │   ├── nginx.conf
@@ -41,8 +50,8 @@ nginx-project/
    ```
 
 3. **Access the services**:
-   - **Local Page**: [https://localhost:8090/local](https://localhost:8090/local)
-   - **Redirect to Google**: [https://localhost:8008/net](https://localhost:8008/net)
+   - Local Page: [https://localhost:8090/local](https://localhost:8090/local)
+   - Redirect to Google: [https://localhost:8008/net](https://localhost:8008/net)
 
 ### Using Ansible
 1. **Clone the repository**:
@@ -53,16 +62,16 @@ nginx-project/
 
 2. **Run the Ansible playbook**:
    ```sh
-   ansible-playbook -i inventory ansible/playbook.yml
+   ansible-playbook -i inventory ansible/playbook.yml -e "nginx_user=username nginx_password=password"
    ```
 
 3. **Access the services**:
-   - **Local Page**: [https://localhost:8090/local](https://localhost:8090/local)
-   - **Redirect to Google**: [https://localhost:8008/net](https://localhost:8008/net)
+   - Local Page: [https://localhost:8090/local](https://localhost:8090/local)
+   - Redirect to Google: [https://localhost:8008/net](https://localhost:8008/net)
 
 ## Configuration
-- The Nginx configuration is located in the `nginx` directory.
-- The static content and authentication files are also located in the `nginx` directory.
+- The Nginx configuration is located in the nginx directory.
+- The static content and authentication files are also located in the nginx directory.
 
 ## Security
 - Nginx version is hidden.
@@ -73,8 +82,11 @@ nginx-project/
 ## Notes
 - Ensure Docker and Docker Compose are installed on your system.
 - Adjust configurations as needed for your environment.
+
+### خروجی فایل `certbot_cron.j2`
+وقتی فایل `certbot_cron.j2` اجرا می‌شود، خروجی آن به صورت زیر خواهد بود:
+
+```cron
+0 0,12 * * * root certbot renew --quiet
 ```
-
-
-
-
+```
