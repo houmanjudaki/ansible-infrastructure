@@ -1,1 +1,18 @@
+---
+- name: Install Certbot
+  apt:
+    name: snapd
+    state: present
+
+- name: Install Certbot using Snap
+  command: snap install --classic certbot
+
+- name: Obtain SSL certificate
+  command: certbot certonly --nginx --non-interactive --agree-tos --email your-email@example.com -d yourdomain.com
+
+- name: Create cron job for Certbot renewal
+  template:
+    src: certbot_cron.j2
+    dest: /etc/cron.d/certbot_renew
+    mode: '0644'
 
