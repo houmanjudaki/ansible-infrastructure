@@ -20,10 +20,8 @@
     src: local.html
     dest: /usr/share/nginx/html/local.html
 
-- name: Copy htpasswd
-  copy:
-    src: htpasswd
-    dest: /etc/nginx/.htpasswd
+- name: Create htpasswd file
+  command: htpasswd -cb /etc/nginx/.htpasswd {{ nginx_user }} {{ nginx_password }}
 
 - name: Restart Nginx service
   service:
