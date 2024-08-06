@@ -1,0 +1,57 @@
+---
+# Copyright 2016, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+rabbitmq_port_bindings: |-
+  {%- set _rabbitmq_port_bindings = {'ssl_listeners': {}, 'tcp_listeners': {}} %}
+  {%- for network, data in container_networks.items() %}
+  {%-   if 'address' in data %}
+  {%-     set _ = _rabbitmq_port_bindings['ssl_listeners'].update({ container_networks[network]['address']: '5671' }) %}
+  {%-     set _ = _rabbitmq_port_bindings['tcp_listeners'].update({ container_networks[network]['address']: '5672' }) %}
+  {%-   endif %}
+  {%- endfor %}
+  {{ _rabbitmq_port_bindings }}
+
+rabbitmq_management_bind_address: "{{ management_address }}"
+
+rabbitmq_cluster_name: openstack
+
+# Ensure that the package state matches the global setting
+rabbitmq_package_state: "{{ rabbitmq_upgrade | default(False) | bool | ternary('latest', 'present') }}"
+
+# Ensure that all rabbitmq containers get a fixed mac address
+lxc_container_fixed_mac: true
+
+haproxy_rabbitmq_management_allowlist_networks: "{{ haproxy_allowlist_networks }}"
+
+haproxy_rabbitmq_service:
+  haproxy_service_name: rabbitmq_mgmt
+  haproxy_backend_nodes: "{{ groups['rabbitmq'] | default([]) }}"
+  haproxy_ssl: "{{ rabbitmq_management_ssl | bool }}"
+  haproxy_backend_ssl: "{{ rabbitmq_management_ssl | bool }}"
+  haproxy_backend_ca: False
+  haproxy_bind: >-
+    {{ [{
+          'address': haproxy_bind_internal_lb_vip_address | default(internal_lb_vip_address),
+          'interface': haproxy_bind_internal_lb_vip_interface | default('')
+    }] }}
+  haproxy_port: "{{ (rabbitmq_management_ssl | bool) | ternary(15671, 15672) }}"
+  haproxy_balance_type: http
+  haproxy_backend_httpcheck_options:
+    - 'send hdr User-Agent "osa-haproxy-healthcheck" meth HEAD'
+  haproxy_allowlist_networks: "{{ haproxy_rabbitmq_management_allowlist_networks }}"
+  haproxy_service_enabled: "{{ groups['rabbitmq'] is defined and groups['rabbitmq'] | length > 0 }}"
+
+rabbitmq_haproxy_services:
+  - "{{ haproxy_rabbitmq_service | combine(haproxy_rabbitmq_service_overrides | default({})) }}"

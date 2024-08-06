@@ -1,0 +1,53 @@
+---
+# Copyright 2016, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Ensure that the package state matches the global setting
+repo_server_package_state: "{{ package_state }}"
+
+# Repo container default list of bind mounts
+repo_container_bind_mounts:
+  - bind_dir_path: "/var/lib/glusterd"
+    mount_path: "/openstack/glusterd/{{ inventory_hostname }}"
+
+# Enable glusterfs mount
+repo_server_systemd_mounts:
+  - what: "{{ ansible_facts['hostname'] }}:gfs-repo"
+    where: "/var/www/repo"
+    type: glusterfs
+    state: 'started'
+    enabled: true
+
+openstack_repo_server_enable_glusterfs: True
+
+haproxy_repo_service:
+  haproxy_service_name: repo_all
+  haproxy_backend_nodes: "{{ groups['repo_all'] | default([]) }}"
+  haproxy_bind: >-
+    {{ [{
+          'address': haproxy_bind_internal_lb_vip_address | default(internal_lb_vip_address),
+          'interface': haproxy_bind_internal_lb_vip_interface | default('')
+    }] }}
+  haproxy_port: 8181
+  haproxy_ssl: "{{ haproxy_ssl_all_vips }}"
+  haproxy_balance_type: http
+  haproxy_backend_httpcheck_options:
+    - 'send hdr User-Agent "osa-haproxy-healthcheck" meth HEAD uri /constraints/upper_constraints_cached.txt'
+    - expect status 200
+  haproxy_backend_ssl: "{{ repo_backend_ssl | default(openstack_service_backend_ssl) }}"
+  haproxy_backend_ca: "{{ repo_haproxy_backend_ca | default(openstack_haproxy_backend_ca) }}"
+  haproxy_service_enabled: "{{ groups['repo_all'] is defined and groups['repo_all'] | length > 0 }}"
+
+repo_haproxy_services:
+  - "{{ haproxy_repo_service | combine(haproxy_repo_service_overrides | default({})) }}"

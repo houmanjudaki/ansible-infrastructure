@@ -1,0 +1,143 @@
+---
+# Copyright 2016, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+haproxy_bind_on_non_local: "{{ (groups.haproxy | length) > 1 }}"
+haproxy_use_keepalived: "{{ (groups.haproxy | length) > 1 }}"
+keepalived_selinux_compile_rules:
+  - keepalived_ping
+  - keepalived_haproxy_pid_file
+
+haproxy_ssl_letsencrypt_enable: false
+haproxy_ssl_letsencrypt_acl:
+  letsencrypt-acl:
+    rule: "path_beg /.well-known/acme-challenge/"
+    backend_name: letsencrypt
+
+# Ensure that the package state matches the global setting
+haproxy_package_state: "{{ package_state }}"
+
+# Variables to set security headers used by browsers
+haproxy_security_headers_max_age: 31536000
+# Set CSP headers to report only for testing
+haproxy_security_headers_csp_report_only: False
+haproxy_security_headers_csp: >
+  http-response set-header {{ haproxy_security_headers_csp_report_only | ternary('Content-Security-Policy-Report-Only', 'Content-Security-Policy') }} "
+  default-src 'self';
+  frame-ancestors 'self';
+  form-action 'self';
+  upgrade-insecure-requests;
+  style-src 'self' 'unsafe-inline';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval';
+  child-src 'self' {{ external_lb_vip_address }}:{{ nova_spice_html5proxy_base_port }} {{ external_lb_vip_address }}:{{ nova_novncproxy_port }} {{ external_lb_vip_address }}:{{ nova_serialconsoleproxy_port }};
+  frame-src 'self' {{ external_lb_vip_address }}:{{ nova_spice_html5proxy_base_port }} {{ external_lb_vip_address }}:{{ nova_novncproxy_port }} {{ external_lb_vip_address }}:{{ nova_serialconsoleproxy_port }};
+  connect-src 'self' {{ external_lb_vip_address }}:* wss://{{ external_lb_vip_address }}:{{ ironic_console_port }};
+  img-src 'self' data:;
+  worker-src blob:;
+  "
+
+# To disable security headers set to []
+haproxy_security_headers:
+  - "http-response set-header Strict-Transport-Security \"max-age={{ haproxy_security_headers_max_age }}; includeSubDomains;\""
+  - 'http-response set-header X-Content-Type-Options "nosniff"'
+  - 'http-response set-header Referrer-Policy "same-origin"'
+  - 'http-response set-header Permissions-Policy "accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), navigation-override=(self), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=(), clipboard-read=(self), clipboard-write=(self), gamepad=(), speaker-selection=()"'
+
+haproxy_security_txt_service:
+  haproxy_backend_only: true
+  haproxy_service_name: security_txt
+  haproxy_backend_nodes: []
+  haproxy_balance_type: http
+  haproxy_service_enabled: "{{ haproxy_security_txt_content is truthy }}"
+  # https://sleeplessbeastie.eu/2020/05/11/how-to-serve-single-file-using-haproxy/
+  haproxy_backend_arguments:
+    - 'errorfile 503 /etc/haproxy/security.txt'
+  haproxy_map_entries:
+    - name: base_regex
+      entries:
+        - '.*/security.txt security_txt-back'
+
+# haproxy 'base' frontend-only service that is used always deployed for port 80 redirect and 443
+# this potentially supports horizon dashboard, security.txt and certbot
+# plus any other user defined custom backend
+haproxy_base_service:
+  haproxy_service_name: base
+  haproxy_frontend_only: true
+  haproxy_ssl: "{{ haproxy_ssl }}"
+  haproxy_ssl_all_vips: true
+  haproxy_port: "{{ haproxy_ssl | ternary(443,80) }}"
+  haproxy_redirect_http_port: 80
+  haproxy_balance_type: http
+  haproxy_service_enabled: true
+  haproxy_redirect_scheme: "{{ (haproxy_ssl_letsencrypt_enable | bool and haproxy_ssl | bool) | ternary('https if !{ ssl_fc } !{ path_beg /.well-known/acme-challenge/ }', 'https if !{ ssl_fc }') }}"
+  haproxy_frontend_acls: "{{ (haproxy_ssl_letsencrypt_enable | bool and haproxy_ssl | bool) | ternary(haproxy_ssl_letsencrypt_acl, {}) }}"
+  haproxy_frontend_raw: >-
+    {{
+      (haproxy_ssl | bool and haproxy_security_headers is defined) | ternary(
+        haproxy_security_headers + [ haproxy_horizon_csp | default(haproxy_security_headers_csp)] + [haproxy_skyline_csp | default('')],
+        [])
+    }}
+  haproxy_maps:
+    - 'use_backend %[path,map_reg(/etc/haproxy/base_regex.map)]'
+  haproxy_map_entries:
+    - name: base_regex
+      entries:
+        - "#Regular expression map file - this comment is defined in the base frontend config"
+
+# Handles LetsEncrypt HTTP-01 challenge
+haproxy_letsencrypt_service:
+  haproxy_service_name: letsencrypt
+  haproxy_backend_nodes: "{{ groups['haproxy_all'] }}"
+  backend_rise: 1
+  backend_fall: 5
+  interval: 4000
+  haproxy_bind:
+    - 127.0.0.1
+  haproxy_port: "{{ haproxy_ssl_letsencrypt_certbot_backend_port }}"
+  haproxy_balance_type: http
+  haproxy_service_enabled: "{{ (haproxy_ssl_letsencrypt_enable | bool and haproxy_ssl | bool) }}"
+
+# RGW backend is defined here as it might be referring to an external ceph cluster via 'ceph_rgws'
+haproxy_ceph_rgw_service:
+  haproxy_service_name: ceph-rgw
+  haproxy_backend_nodes: "{{ (groups['ceph-rgw'] is defined and groups['ceph-rgw'] | length > 0) | ternary(groups['ceph-rgw'], ceph_rgws) }}"
+  haproxy_ssl: "{{ haproxy_ssl }}"
+  haproxy_ssl_all_vips: "{{ haproxy_ssl_all_vips }}"
+  haproxy_balance_alg: source
+  haproxy_port: "{{ radosgw_service_port | default(7980) }}"
+  haproxy_balance_type: http
+  haproxy_backend_httpcheck_options:
+    - send meth HEAD
+    - expect rstatus 200|405
+  # `openstack_service_backend_ssl` is not taken into account if ceph is installed independently.
+  haproxy_backend_ssl: "{{ ceph_rgw_backend_ssl | default((groups['ceph-rgw'] is defined and groups['ceph-rgw'] | length > 0) | ternary(openstack_service_backend_ssl, False)) }}"
+  haproxy_backend_ca: "{{ ceph_rgw_haproxy_backend_ca | default(openstack_haproxy_backend_ca) }}"
+  haproxy_accept_both_protocols: "{{ ceph_rgw_accept_both_protocols | default(openstack_service_accept_both_protocols) }}"
+  haproxy_service_enabled: "{{ (groups['ceph-rgw'] is defined and groups['ceph-rgw'] | length > 0) or (ceph_rgws | length > 0) }}"
+
+haproxy_default_services:
+  - "{{ haproxy_security_txt_service | combine(haproxy_security_txt_service_overrides | default({})) }}"
+  - "{{ haproxy_base_service | combine(haproxy_base_service_overrides | default({})) }}"
+  - "{{ haproxy_letsencrypt_service | combine(haproxy_letsencrypt_service_overrides | default({})) }}"
+  - "{{ haproxy_ceph_rgw_service | combine(haproxy_ceph_rgw_service_overrides | default({})) }}"
+
+# ensure correct facts are gathered in haproxy play
+# to determine the network gateway to use in keepalived track script
+deployment_extra_facts_filter:
+  - "ansible_processor_*"
+  - ansible_default_ipv4
+deployment_extra_facts_subset:
+  - '!all'
+  - hardware
+  - network

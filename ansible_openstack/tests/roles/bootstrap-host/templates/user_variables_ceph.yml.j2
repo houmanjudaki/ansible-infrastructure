@@ -1,0 +1,36 @@
+---
+# Copyright 2017, Logan Vig <logan2211@gmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+## ceph-ansible AIO settings
+is_hci: true
+monitor_interface: "{{ ('metal' in bootstrap_host_scenarios_expanded) | ternary('br-storage', 'eth2') }}" # Storage network in the AIO
+public_network: "{{ (storage_range ~ '.0/' ~ netmask) | ansible.utils.ipaddr('net') }}"
+journal_size: 100
+osd_scenario: collocated
+ceph_conf_overrides_custom:
+  global:
+    mon_max_pg_per_osd: 500
+    osd_crush_chooseleaf_type: 0
+openstack_config: true # Ceph ansible automatically creates pools & keys
+cinder_default_volume_type: aio_ceph
+glance_ceph_client: glance
+glance_default_store: rbd
+glance_rbd_store_pool: images
+nova_libvirt_images_rbd_pool: vms
+# NOTE(noonedeadpunk): ceph bug to track the issue https://tracker.ceph.com/issues/46295
+tempest_test_includelist_ceph:
+    - tempest.scenario.test_volume_boot_pattern.TestVolumeBootPattern.test_volume_boot_pattern
+# NOTE(noonedeadpunk)L We want here to run _only_ this test as otherwise we might be short on memory
+tempest_test_search_includelist_pattern: tempest_test_includelist_ceph

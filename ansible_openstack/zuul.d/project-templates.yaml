@@ -1,0 +1,326 @@
+# Copyright 2018, VEXXHOST, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- project-template:
+    name: openstack-ansible-deploy-base-jobs
+    check:
+      jobs:
+        - openstack-ansible-varstest-aio
+        - openstack-ansible-shastest-metal
+        - openstack-ansible-tox-inventory
+        - openstack-ansible-deploy-infra_lxc-validate
+        - openstack-ansible-deploy-hosts_lxc-validate
+        - openstack-tox-docs
+    gate:
+      jobs:
+        - openstack-ansible-varstest-aio
+        - openstack-ansible-shastest-metal
+        - openstack-ansible-tox-inventory
+        - openstack-ansible-deploy-infra_lxc-validate
+        - openstack-ansible-deploy-hosts_lxc-validate
+        - openstack-tox-docs
+    periodic:
+      jobs:
+        - openstack-ansible-deploy-translations-ubuntu-jammy
+    experimental:
+      jobs:
+        - openstack-ansible-deploy-aio_qdrouterd-ubuntu-jammy
+        - openstack-ansible-deploy_with_ansible_devel-aio-ubuntu-jammy
+        - openstack-ansible-deploy_with_ansible_next-aio-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-deploy-aio_lxc-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-aio_lxc-centos-9-stream:
+            voting: false
+        - openstack-ansible-deploy-aio_lxc-rockylinux-9
+        - openstack-ansible-deploy-aio_lxc-debian-bookworm
+        - openstack-ansible-deploy-aio_lxc-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-deploy-aio_lxc-rockylinux-9
+        - openstack-ansible-deploy-aio_lxc-debian-bookworm
+        - openstack-ansible-deploy-aio_lxc-ubuntu-jammy
+    periodic:
+      jobs:
+        - openstack-ansible-deploy-aio_lxc-ubuntu-jammy
+        - openstack-ansible-upgrade-aio_lxc-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-upgrade-infra_lxc-jobs
+    check:
+      jobs:
+        - openstack-ansible-upgrade-infra_lxc-rockylinux-9
+        - openstack-ansible-upgrade-infra_lxc-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-upgrade-infra_lxc-rockylinux-9
+        - openstack-ansible-upgrade-infra_lxc-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-upgrade-aio_metal-jobs
+    check:
+      jobs:
+        - openstack-ansible-upgrade-aio_metal-rockylinux-9
+        - openstack-ansible-upgrade-aio_metal-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-upgrade-aio_metal-rockylinux-9
+        - openstack-ansible-upgrade-aio_metal-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-deploy-infra_lxc-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-infra_lxc-centos-9-stream:
+            voting: false
+        - openstack-ansible-deploy-infra_lxc-rockylinux-9
+        - openstack-ansible-deploy-infra_lxc_tls-rockylinux-9
+        - openstack-ansible-deploy-infra_lxc-debian-bookworm
+        - openstack-ansible-deploy-infra_lxc-ubuntu-jammy
+        - openstack-ansible-deploy-infra_lxc_stepca-ubuntu-jammy
+        - openstack-ansible-deploy-infra_lxc_tls-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-deploy-infra_lxc-rockylinux-9
+        - openstack-ansible-deploy-infra_lxc_tls-rockylinux-9
+        - openstack-ansible-deploy-infra_lxc-debian-bookworm
+        - openstack-ansible-deploy-infra_lxc-ubuntu-jammy
+        - openstack-ansible-deploy-infra_lxc_stepca-ubuntu-jammy
+        - openstack-ansible-deploy-infra_lxc_tls-ubuntu-jammy
+    periodic:
+      jobs:
+        - openstack-ansible-deploy-infra_lxc-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-deploy-infra_distro_lxc-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-infra_distro_lxc-rockylinux-9
+        - openstack-ansible-deploy-infra_distro_lxc-debian-bookworm
+        - openstack-ansible-deploy-infra_distro_lxc-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-deploy-infra_distro_lxc-rockylinux-9
+        - openstack-ansible-deploy-infra_distro_lxc-debian-bookworm
+        - openstack-ansible-deploy-infra_distro_lxc-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-deploy-hosts_lxc-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-hosts_lxc-rockylinux-9
+        - openstack-ansible-deploy-hosts_lxc-debian-bookworm
+        - openstack-ansible-deploy-hosts_lxc-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-deploy-hosts_lxc-rockylinux-9
+        - openstack-ansible-deploy-hosts_lxc-debian-bookworm
+        - openstack-ansible-deploy-hosts_lxc-ubuntu-jammy
+    periodic:
+      jobs:
+        - openstack-ansible-deploy-hosts_lxc-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-deploy-hosts_metal-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-hosts_metal-rockylinux-9
+        - openstack-ansible-deploy-hosts_metal-debian-bookworm
+        - openstack-ansible-deploy-hosts_metal-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-deploy-hosts_metal-rockylinux-9
+        - openstack-ansible-deploy-hosts_metal-debian-bookworm
+        - openstack-ansible-deploy-hosts_metal-ubuntu-jammy
+    periodic:
+      jobs:
+        - openstack-ansible-deploy-hosts_metal-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-deploy-hosts_distro_lxc-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-hosts_distro_lxc-rockylinux-9
+        - openstack-ansible-deploy-hosts_distro_lxc-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-deploy-hosts_distro_lxc-rockylinux-9
+        - openstack-ansible-deploy-hosts_distro_lxc-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-deploy-aio_distro_lxc-jobs
+    experimental:
+      jobs:
+        - openstack-ansible-deploy-aio_distro_lxc-debian-bookworm
+        - openstack-ansible-deploy-aio_distro_lxc-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-deploy-aio_metal-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-aio_metal-debian-bookworm
+        - openstack-ansible-deploy-aio_metal-centos-9-stream:
+            voting: false
+        - openstack-ansible-deploy-aio_metal-rockylinux-9
+        - openstack-ansible-deploy-aio_metal-ubuntu-jammy
+        - openstack-ansible-deploy-aio_metal_tls-rockylinux-9
+        - openstack-ansible-deploy-aio_metal_tls-ubuntu-jammy
+        - openstack-ansible-deploy-aio_metal_haqueues-ubuntu-jammy
+        - openstack-ansible-upgrade-aio_metal-rockylinux-9
+        - openstack-ansible-upgrade-aio_metal-ubuntu-jammy
+        - openstack-ansible-upgrade-aio_metal_tls-rockylinux-9
+        - openstack-ansible-upgrade-aio_metal_tls-ubuntu-jammy
+
+    gate:
+      jobs:
+        - openstack-ansible-deploy-aio_metal-debian-bookworm
+        - openstack-ansible-deploy-aio_metal-rockylinux-9
+        - openstack-ansible-deploy-aio_metal-ubuntu-jammy
+        - openstack-ansible-deploy-aio_metal_haqueues-ubuntu-jammy
+        - openstack-ansible-deploy-aio_metal_tls-rockylinux-9
+        - openstack-ansible-deploy-aio_metal_tls-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-deploy-aio_telemetry_metal-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-aio_telemetry_metal-centos-9-stream:
+            voting: false
+        - openstack-ansible-deploy-aio_telemetry_metal-rockylinux-9
+        - openstack-ansible-deploy-aio_telemetry_metal-debian-bookworm
+        - openstack-ansible-deploy-aio_telemetry_metal-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-deploy-aio_telemetry_metal-rockylinux-9
+        - openstack-ansible-deploy-aio_telemetry_metal-debian-bookworm
+        - openstack-ansible-deploy-aio_telemetry_metal-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-deploy-aio_distro_metal-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-aio_distro_metal-rockylinux-9
+        - openstack-ansible-deploy-aio_distro_metal-ubuntu-jammy
+    experimental:
+      jobs:
+        - openstack-ansible-deploy-aio_distro_metal-debian-bookworm
+        - openstack-ansible-deploy-aio_distro_metal-centos-9-stream
+
+- project-template:
+    name: openstack-ansible-deploy-nfs-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-aio_nfs-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-deploy-aio_nfs-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-deploy-ceph-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-aio_ceph-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-deploy-aio_ceph-ubuntu-jammy
+    periodic:
+      jobs:
+        - openstack-ansible-deploy-aio_ceph-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-deploy-stepca-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-aio_stepca-ubuntu-jammy
+        - openstack-ansible-deploy-aio_metal_stepca-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-deploy-aio_stepca-ubuntu-jammy
+        - openstack-ansible-deploy-aio_metal_stepca-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-deploy-proxy-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-aio_proxy-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-deploy-aio_proxy-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-linters-jobs
+    check:
+      jobs:
+        - openstack-ansible-linters-ubuntu-jammy
+    gate:
+      jobs:
+        - openstack-ansible-linters-ubuntu-jammy
+
+- project-template:
+    name: openstack-ansible-lxc-backingstore-jobs
+    check:
+      jobs:
+        - openstack-ansible-deploy-hosts_lxc_zfs-ubuntu-jammy
+        - openstack-ansible-deploy-hosts_lxc_btrfs-ubuntu-jammy
+        - openstack-ansible-deploy-hosts_lxc_overlayfs-ubuntu-jammy
+        - openstack-ansible-deploy-hosts_lxc_btrfs-debian-bookworm
+        - openstack-ansible-deploy-hosts_lxc_overlayfs-debian-bookworm
+        - openstack-ansible-deploy-hosts_lxc_overlayfs-rockylinux-9
+    gate:
+      jobs:
+        - openstack-ansible-deploy-hosts_lxc_zfs-ubuntu-jammy
+        - openstack-ansible-deploy-hosts_lxc_btrfs-ubuntu-jammy
+        - openstack-ansible-deploy-hosts_lxc_overlayfs-ubuntu-jammy
+        - openstack-ansible-deploy-hosts_lxc_btrfs-debian-bookworm
+        - openstack-ansible-deploy-hosts_lxc_overlayfs-debian-bookworm
+        - openstack-ansible-deploy-hosts_lxc_overlayfs-rockylinux-9
+
+- project-template:
+    name: openstack-ansible-deploy-guide-jobs
+    description: |
+      Build the deploy-guide document and publish the result
+      using a promote job.
+    check:
+      jobs:
+        # NOTE(noonedeadpunk): We do not create a child job, since `promote-deploy-guide`
+        # is a final job and can not be parented. With that, it does define
+        # `download_artifact_job` which is expected to contain name of job where artifacts
+        # were produced and defaults to `build-openstack-deploy-guide`. So to avoid
+        # defining file trigger list in different files separately, it makes sense to
+        # pass these and vars to jobs themselves.
+        - build-openstack-deploy-guide:
+            files: &deploy-guide-triggers
+              - .gitreview
+              - ^deploy-guide/.*
+              - ansible-role-requirements.yml
+              - bindep.txt
+              - doc/requirements.txt
+              - test-requirements.txt
+              - tox.ini
+            vars: &deploy-guide-vars
+              tox_pdf_envlist: deploy-guide-pdf-docs
+              tox_skip_pdf: false
+              sphinx_pdf_files:
+                - "deploy-guide-{{ zuul.project.short_name }}.pdf"
+    gate:
+      jobs:
+        - build-openstack-deploy-guide:
+            files: *deploy-guide-triggers
+            vars: *deploy-guide-vars
+    promote:
+      jobs:
+        - promote-deploy-guide:
+            files: *deploy-guide-triggers

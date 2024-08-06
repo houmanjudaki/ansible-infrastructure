@@ -1,0 +1,41 @@
+---
+# Copyright 2023, Cleura AB
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+## NOTICE on items in this file:
+##   * If you use anything in the *._git_install_branch field that is not a TAG
+##     make sure to leave an in-line comment as to "why".
+
+## For the sake of anyone else editing this file:
+##   * If you add clients to this file please do so in alphabetical order.
+##   * Every entry should be name spaced with the name of the client followed by an "_"
+##   * All items with this file should be separated by `name_` note that the name of the
+##     package should be one long name with no additional `_` separating it.
+
+### HEAD as of 05.07.2024 ###
+
+## NOVNC from source
+novncproxy_git_repo: "{{ openstack_github_base_url }}/novnc/noVNC"
+novncproxy_git_install_branch: 7fcf9dcfe0cc5b14e3841a4429dc091a6ffca861
+novncproxy_git_track_branch: master
+
+## spice-html5 from source
+spicehtml5_git_repo: "https://gitlab.freedesktop.org/spice/spice-html5"
+spicehtml5_git_install_branch: f279fe81faada11f531a2d88b1b50bb4990deeca
+spicehtml5_git_track_branch: master
+
+## Nova service
+nova_git_repo: "{{ openstack_opendev_base_url }}/openstack/nova"
+nova_git_install_branch: cff73f518bd4d1ebb6a3a93b886cc16ea3c63957
+nova_git_track_branch: master
